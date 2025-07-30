@@ -1,9 +1,9 @@
-import { airports, countries, COMMON_ACRONYMS_TO_IGNORE } from './data.js';
+import { AIRPORTS, COUNTRIES, COMMON_ACRONYMS_TO_IGNORE } from './data.js';
 
 export function findMentionedIcaoCodes(text: string): Set<string> {
   const mentioned = new Set<string>();
 
-  for (const [key, airport] of Object.entries(airports)) {
+  for (const [key, airport] of Object.entries(AIRPORTS)) {
     // Check for either the ICAO or IATA code
     const codesToCheck = [airport.icao, airport.iata].filter(
       (c) => c && !COMMON_ACRONYMS_TO_IGNORE.includes(c),
@@ -31,7 +31,7 @@ export function makeCommentBody(icaoCodes: Set<string>): string {
   let body = '|IATA|ICAO|Name|Location|\n|:-|:-|:-|:-|';
 
   for (const code of Array.from(icaoCodes).sort((a, b) => a.localeCompare(b))) {
-    const airport = airports[code];
+    const airport = AIRPORTS[code];
 
     const name = airport.name;
     const icao = airport.icao;
@@ -39,7 +39,7 @@ export function makeCommentBody(icaoCodes: Set<string>): string {
     const city = airport.city;
     const state = airport.state;
     const countryCode = airport.country;
-    const country = countries[countryCode] || countryCode;
+    const country = COUNTRIES[countryCode] || countryCode;
     const location = [city, state, country].filter((x) => x).join(', ');
 
     body += `\n|${iata}|${icao}|${name}|${location}|`;

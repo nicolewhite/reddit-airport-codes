@@ -1,6 +1,6 @@
+import { z } from 'zod';
 import airportsData from './db/airports.json' with { type: 'json' };
 import countriesData from './db/countries.json' with { type: 'json' };
-import { z } from 'zod';
 import { AirportSchema } from './schema.js';
 
 export const COMMON_ACRONYMS_TO_IGNORE = [
@@ -17,7 +17,7 @@ export const COMMON_ACRONYMS_TO_IGNORE = [
 ];
 
 // Map of ICAO code to airport.
-export const airports = z.record(z.string(), AirportSchema).parse(airportsData);
+export const AIRPORTS = z.record(z.string(), AirportSchema).parse(airportsData);
 
 // Map of country code to country name.
-export const countries = z.record(z.string(), z.string()).parse(countriesData);
+export const COUNTRIES = z.record(z.string(), z.string()).parse(countriesData);
