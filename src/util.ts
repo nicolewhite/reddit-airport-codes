@@ -48,5 +48,24 @@ export function makeCommentBody(icaoCodes: Set<string>): string {
 
   body += "\n\n*I am a bot.*";
 
+  const links = [
+    {
+      name: 'Source',
+      url: 'https://github.com/nicolewhite/reddit-airport-codes',
+    },
+    {
+      name: 'FAQ',
+      url: 'https://github.com/nicolewhite/reddit-airport-codes/blob/main/README.md#FAQ',
+    },
+    {
+      name: 'Report a bug',
+      url: 'https://github.com/nicolewhite/reddit-airport-codes/issues/new',
+    },
+  ];
+
+  body += "\n\n";
+
+  body += links.map(link => `[${link.name}](${link.url})`).join(' | ');
+
   return body;
 }
