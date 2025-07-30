@@ -4,11 +4,21 @@
   "version": "0.0.0",
   "license": "BSD-3-Clause",
   "type": "module",
+  "scripts": {
+    "format": "prettier --write src/**/*.ts"
+  },
   "dependencies": {
     "@devvit/public-api": "0.11.19",
     "zod": "^4.0.14"
   },
   "devDependencies": {
+    "prettier": "^3.6.2",
     "typescript": "5.8.3"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all",
+    "printWidth": 100,
+    "tabWidth": 2
   }
 }

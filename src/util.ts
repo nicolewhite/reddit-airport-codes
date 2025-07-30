@@ -1,14 +1,13 @@
-import { airports, countries, COMMON_ACRONYMS_TO_IGNORE } from "./data.js";
+import { airports, countries, COMMON_ACRONYMS_TO_IGNORE } from './data.js';
 
 export function findMentionedIcaoCodes(text: string): Set<string> {
   const mentioned = new Set<string>();
 
   for (const [key, airport] of Object.entries(airports)) {
     // Check for either the ICAO or IATA code
-    const codesToCheck = [
-      airport.icao,
-      airport.iata,
-    ].filter(c => c && !COMMON_ACRONYMS_TO_IGNORE.includes(c));
+    const codesToCheck = [airport.icao, airport.iata].filter(
+      (c) => c && !COMMON_ACRONYMS_TO_IGNORE.includes(c),
+    );
     if (codesToCheck.length === 0) {
       continue;
     }
@@ -29,7 +28,7 @@ export function findMentionedIcaoCodes(text: string): Set<string> {
 }
 
 export function makeCommentBody(icaoCodes: Set<string>): string {
-  let body = "|IATA|ICAO|Name|Location|\n|:-|:-|:-|:-|";
+  let body = '|IATA|ICAO|Name|Location|\n|:-|:-|:-|:-|';
 
   for (const code of Array.from(icaoCodes).sort((a, b) => a.localeCompare(b))) {
     const airport = airports[code];
@@ -41,12 +40,12 @@ export function makeCommentBody(icaoCodes: Set<string>): string {
     const state = airport.state;
     const countryCode = airport.country;
     const country = countries[countryCode] || countryCode;
-    const location = [city, state, country].filter(x => x).join(', ');
+    const location = [city, state, country].filter((x) => x).join(', ');
 
     body += `\n|${iata}|${icao}|${name}|${location}|`;
   }
 
-  body += "\n\n*I am a bot.*";
+  body += '\n\n*I am a bot.*';
 
   const links = [
     {
@@ -63,9 +62,9 @@ export function makeCommentBody(icaoCodes: Set<string>): string {
     },
   ];
 
-  body += "\n\n";
+  body += '\n\n';
 
-  body += links.map(link => `[${link.name}](${link.url})`).join(' | ');
+  body += links.map((link) => `[${link.name}](${link.url})`).join(' | ');
 
   return body;
 }
