@@ -33,3 +33,14 @@ Mods can install this app into their subreddit via the official Reddit apps mark
 To install this app, go to its [homepage](https://developers.reddit.com/apps/airport-codes) and click **Add to community**.
 
 See [mod resources](https://developers.reddit.com/docs/mod_resources) for more details on installing and managing apps.
+
+# Changelog
+
+## 0.0.3
+
+* Add FAQ
+* Add links to GitHub at bottom of comment
+
+## 0.0.2
+
+* Initial commit

@@ -54,7 +54,7 @@ export function makeCommentBody(icaoCodes: Set<string>): string {
     },
     {
       name: 'FAQ',
-      url: 'https://github.com/nicolewhite/reddit-airport-codes/blob/main/README.md#FAQ',
+      url: 'https://github.com/nicolewhite/reddit-airport-codes/blob/main/README.md#faq',
     },
     {
       name: 'Report a bug',
