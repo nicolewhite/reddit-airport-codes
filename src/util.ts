@@ -40,7 +40,7 @@ export function makeCommentBody(icaoCodes: Set<string>): string {
     const state = airport.state;
     const countryCode = airport.country;
     const country = COUNTRIES[countryCode] || countryCode;
-    const location = [city, state, country].filter((x) => x).join(', ');
+    const location = [...new Set([city, state, country].filter((x) => x))].join(', ');
 
     body += `\n|${iata}|${icao}|${name}|${location}|`;
   }

@@ -1,17 +1,17 @@
-# airport-codes
+# About
 
-This bot detects airport codes in submissions and leaves a comment on the post with additional information about the mentioned airport(s).
+This is a [Reddit app](https://developers.reddit.com/apps/airport-codes) that detects airport codes in submissions and leaves a comment on the post with additional information about the mentioned airports.
 
 For example, if a submission is posted with the title:
 
-> Spotted at SFO (inbound from SEA!)
+> A380 spotted at SFO (inbound from DXB)
 
 The bot will leave a comment like:
 
 |IATA|ICAO|Name|Location|
 |-|-|-|-|
 |SFO|KSFO|San Francisco International Airport|San Francisco, California, United States|
-|SEA|KSEA|Seattle–Tacoma International Airport|Seattle, Washington, United States|
+|DXB|OMDB|Dubai International Airport|Dubai, United Arab Emirates|
 
 # FAQ
 
@@ -34,12 +34,18 @@ To install this app, go to its [homepage](https://developers.reddit.com/apps/air
 
 See [mod resources](https://developers.reddit.com/docs/mod_resources) for more details on installing and managing apps.
 
+# Development
+
+This app is developed using [Devvit](https://developers.reddit.com/docs/) and is open source on GitHub at [nicolewhite/reddit-airport-codes](https://github.com/nicolewhite/reddit-airport-codes).
+
 # Changelog
 
 ## 0.0.3
 
 * Add FAQ
-* Add links to GitHub at bottom of comment
+* Add links to FAQ and bug reports at bottom of comment
+* Don't repeat city and state if they are the same
+  * For example, `Dubai, Dubai, United Arab Emirates` will now be `Dubai, United Arab Emirates`
 
 ## 0.0.2
 
