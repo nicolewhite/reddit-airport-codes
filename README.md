@@ -17,7 +17,7 @@ The bot will leave a comment like:
 
 ## Where does the airport data come from?
 
-The airport list is maintained in [airports.json](src/db/airports.json) and was originally sourced from [mwgg/Airports](https://github.com/mwgg/Airports).
+The airport list is maintained in [airports.json](https://raw.githubusercontent.com/nicolewhite/reddit-airport-codes/refs/heads/main/src/db/airports.json) and was originally sourced from [mwgg/Airports](https://github.com/mwgg/Airports).
 
 ## The bot replied with an airport I didn't mention.
 
