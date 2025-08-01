@@ -62,7 +62,8 @@ This app is developed using [Devvit](https://developers.reddit.com/docs/) and is
 
 ## 0.0.4
 
-* The app will now reply to comments when summoned via username 
+* The app will now reply to comments when summoned via username
+* Updated countries list
 
 ## 0.0.3
 
