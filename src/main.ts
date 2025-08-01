@@ -1,6 +1,7 @@
 import { Devvit } from '@devvit/public-api';
 
-import { findMentionedIcaoCodes, makeCommentBody } from './util.js';
+import { APP_USERNAME } from './data.js';
+import { makeCommentResponse } from './util.js';
 
 Devvit.configure({
   redditAPI: true,
@@ -19,28 +20,69 @@ Devvit.addTrigger({
     const postText = event.post?.selftext;
     const combinedText = [postTitle, postText].filter(Boolean).join('\n\n');
 
-    const mentionedIcaoCodes = findMentionedIcaoCodes(combinedText);
-
-    if (mentionedIcaoCodes.size === 0) {
-      console.log('No ICAO codes mentioned in the post.');
+    const responseCommentBody = makeCommentResponse(combinedText);
+    if (!responseCommentBody) {
       return;
     }
-
-    console.log('==== POST TEXT ====');
-    console.log(combinedText);
-    console.log('===================');
-    console.log('==== ICAO CODE ====');
-    console.log(`${Array.from(mentionedIcaoCodes).join(', ')}`);
-    console.log('===================');
-
-    const commentBody = makeCommentBody(mentionedIcaoCodes);
 
     try {
       await reddit.submitComment({
         id: postId,
-        text: commentBody,
+        text: responseCommentBody,
       });
-      console.log('Comment posted successfully!');
+    } catch (error) {
+      console.error('Error posting comment:', error);
+    }
+  },
+});
+
+Devvit.addTrigger({
+  event: 'CommentSubmit',
+  onEvent: async (event, { reddit }) => {
+    if (event.author?.name === APP_USERNAME) {
+      // Don't reply to our own comments.
+      return;
+    }
+
+    const commentBody = event.comment?.body;
+
+    if (!commentBody?.includes(`u/${APP_USERNAME}`)) {
+      // Don't handle comments that don't mention us.
+      return;
+    }
+
+    const postId = event.post?.id;
+    const commentId = event.comment?.id;
+    const commentParentId = event.comment?.parentId;
+
+    if (!postId || !commentId || !commentParentId) {
+      console.error('Missing ID:', { postId, commentId, commentParentId });
+      return;
+    }
+
+    let textToParse = commentBody;
+
+    if (commentParentId !== postId) {
+      // If the comment is a reply to another comment, it's likely someone
+      // wanting to know the airport codes mentioned in the parent comment.
+      const parentComment = await reddit.getCommentById(commentParentId);
+
+      // If the parent comment is not ours, include its body in the text to parse.
+      if (parentComment.authorName !== APP_USERNAME) {
+        textToParse = [commentBody, parentComment.body].filter(Boolean).join('\n\n');
+      }
+    }
+
+    const responseCommentBody = makeCommentResponse(textToParse);
+    if (!responseCommentBody) {
+      return;
+    }
+
+    try {
+      await reddit.submitComment({
+        id: commentId,
+        text: responseCommentBody,
+      });
     } catch (error) {
       console.error('Error posting comment:', error);
     }

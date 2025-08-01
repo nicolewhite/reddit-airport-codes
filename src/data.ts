@@ -3,6 +3,8 @@ import airportsData from './db/airports.json' with { type: 'json' };
 import countriesData from './db/countries.json' with { type: 'json' };
 import { AirportSchema } from './schema.js';
 
+export const APP_USERNAME = 'airport-codes';
+
 export const COMMON_ACRONYMS_TO_IGNORE = [
   // Instrument Landing System; conflicts with Ilopango International Airport (ILS)
   'ILS',

@@ -1,6 +1,6 @@
 import { AIRPORTS, COUNTRIES, COMMON_ACRONYMS_TO_IGNORE } from './data.js';
 
-export function findMentionedIcaoCodes(text: string): Set<string> {
+function findMentionedIcaoCodes(text: string): Set<string> {
   const mentioned = new Set<string>();
 
   for (const [key, airport] of Object.entries(AIRPORTS)) {
@@ -27,7 +27,7 @@ export function findMentionedIcaoCodes(text: string): Set<string> {
   return mentioned;
 }
 
-export function makeCommentBody(icaoCodes: Set<string>): string {
+function makeCommentBody(icaoCodes: Set<string>): string {
   let body = '|IATA|ICAO|Name|Location|\n|:-|:-|:-|:-|';
 
   for (const code of Array.from(icaoCodes).sort((a, b) => a.localeCompare(b))) {
@@ -67,4 +67,14 @@ export function makeCommentBody(icaoCodes: Set<string>): string {
   body += links.map((link) => `[${link.name}](${link.url})`).join(' | ');
 
   return body;
+}
+
+export function makeCommentResponse(text: string): string | null {
+  const mentionedIcaoCodes = findMentionedIcaoCodes(text);
+
+  if (mentionedIcaoCodes.size === 0) {
+    return null;
+  }
+
+  return makeCommentBody(mentionedIcaoCodes);
 }

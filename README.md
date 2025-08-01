@@ -1,17 +1,37 @@
 # About
 
-This is a [Reddit app](https://developers.reddit.com/apps/airport-codes) that detects airport codes in submissions and leaves a comment on the post with additional information about the mentioned airports.
+This is a [Reddit app](https://developers.reddit.com/apps/airport-codes) that detects airport codes in submissions and leaves a comment with additional information about the mentioned airports. It was motivated by [this post](https://www.reddit.com/r/aviation/comments/1mc9czz/meta_can_we_include_airport_names_with_airport/) in [r/aviation](https://www.reddit.com/r/aviation/), which pointed out that many people are unfamiliar with lesser-known airport codes.
 
-For example, if a submission is posted with the title:
+## Replies to posts
+
+Replies to **posts** are automated. The app searches for airport codes (both [IATA](https://en.wikipedia.org/wiki/IATA_airport_code) and [ICAO](https://en.wikipedia.org/wiki/ICAO_airport_code)) in the post's title and its text. For example, if a submission is posted with the title:
 
 > A380 spotted at SFO (inbound from DXB)
 
-The bot will leave a comment like:
+The app will leave a comment like:
 
 |IATA|ICAO|Name|Location|
 |-|-|-|-|
 |SFO|KSFO|San Francisco International Airport|San Francisco, California, United States|
 |DXB|OMDB|Dubai International Airport|Dubai, United Arab Emirates|
+
+## Replies to comments
+
+Replies to **comments** are on-demand. If there is a comment that mentions airport codes and you want to summon this app to reply with additional information, respond to the comment in question and mention this app's username, `u/airport-codes`:
+
+> **User 1** • 3m ago
+>
+> There was an incident on the tarmac today at CMH
+
+>> **User 2** • 2m ago
+>>
+>> Pinging u/airport-codes
+
+>>> **airport-codes** • 1m ago
+>>>
+>>>|IATA|ICAO|Name|Location|
+>>>|-|-|-|-|
+>>>|CMH|KCMH|John Glenn Columbus International Airport|Columbus, Ohio, United States|
 
 # FAQ
 
@@ -23,9 +43,9 @@ The airport list is maintained in [airports.json](https://raw.githubusercontent.
 
 There can be false positives if your post contains an acronym that happens to match the IATA or ICAO code of an airport.
 
-For example, **ILS** is commonly used to refer to **Instrument Landing System** but is also the IATA code of [Ilopango International Airport](https://en.wikipedia.org/wiki/Ilopango_International_Airport) in El Salvador.
+For example, **ILS** is commonly used to refer to the [Instrument Landing System](https://en.wikipedia.org/wiki/Instrument_landing_system) but is also the IATA code of [Ilopango International Airport](https://en.wikipedia.org/wiki/Ilopango_International_Airport) in El Salvador.
 
-We maintain a list of common acronyms like this so that they can be ignored. If you want to nominate a new acronym to add to the ignore list because it overlaps with the codes of a relatively unknown airport, please [open an issue](https://github.com/nicolewhite/reddit-airport-codes/issues/new).
+We maintain a list of common acronyms like this so that they can be ignored. If you want to nominate a new acronym to add to this list because it overlaps with the code of a relatively unknown airport, please [open an issue](https://github.com/nicolewhite/reddit-airport-codes/issues/new).
 
 ## How do I add this bot to my community?
 
@@ -39,6 +59,10 @@ See [mod resources](https://developers.reddit.com/docs/mod_resources) for more d
 This app is developed using [Devvit](https://developers.reddit.com/docs/) and is open source on GitHub at [nicolewhite/reddit-airport-codes](https://github.com/nicolewhite/reddit-airport-codes).
 
 # Changelog
+
+## 0.0.4
+
+* The app will now reply to comments when summoned via username 
 
 ## 0.0.3
 
