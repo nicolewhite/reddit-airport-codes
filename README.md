@@ -64,6 +64,7 @@ This app is developed using [Devvit](https://developers.reddit.com/docs/) and is
 
 * The app will now reply to comments when summoned via username
 * Updated countries list
+* Revert "Don't repeat city and state if they are the same"
 
 ## 0.0.3
 
