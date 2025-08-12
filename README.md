@@ -60,6 +60,10 @@ This app is developed using [Devvit](https://developers.reddit.com/docs/) and is
 
 # Changelog
 
+## 0.0.7
+
+* Add `MIG` to false positives list
+
 ## 0.0.6
 
 * Add `JAL`, `USA`, `ITA`, `AIR`, and `ALL` to the false positives list

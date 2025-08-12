@@ -21,6 +21,7 @@ export const FALSE_POSITIVES_LIST_DEFAULT = [
   'ITA',
   'AIR',
   'ALL',
+  'MIG',
 ];
 
 // Map of ICAO code to airport.
