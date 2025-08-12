@@ -1,13 +1,18 @@
-import { AIRPORTS, COUNTRIES, COMMON_ACRONYMS_TO_IGNORE } from './data.js';
+import { z } from 'zod';
+import type { SettingsClient } from '@devvit/public-api';
+import {
+  AIRPORTS,
+  COUNTRIES,
+  FALSE_POSITIVES_LIST_DEFAULT,
+  FALSE_POSITIVES_LIST_SETTING_NAME,
+} from './data.js';
 
-function findMentionedIcaoCodes(text: string): Set<string> {
+function findMentionedIcaoCodes(args: { text: string; ignoreCodes: Set<string> }): Set<string> {
   const mentioned = new Set<string>();
 
   for (const [key, airport] of Object.entries(AIRPORTS)) {
     // Check for either the ICAO or IATA code
-    const codesToCheck = [airport.icao, airport.iata].filter(
-      (c) => c && !COMMON_ACRONYMS_TO_IGNORE.includes(c),
-    );
+    const codesToCheck = [airport.icao, airport.iata].filter((c) => c && !args.ignoreCodes.has(c));
     if (codesToCheck.length === 0) {
       continue;
     }
@@ -19,7 +24,7 @@ function findMentionedIcaoCodes(text: string): Set<string> {
     const codesRegex = codesToCheck.join('|');
     const pattern = new RegExp(`(^|\\W+)(${codesRegex})(\\W+|$)`, 'm');
 
-    if (pattern.test(text)) {
+    if (pattern.test(args.text)) {
       mentioned.add(key);
     }
   }
@@ -69,12 +74,61 @@ function makeCommentBody(icaoCodes: Set<string>): string {
   return body;
 }
 
-export function makeCommentResponse(text: string): string | null {
-  const mentionedIcaoCodes = findMentionedIcaoCodes(text);
+export function makeCommentResponse(args: {
+  text: string;
+  ignoreCodes: Set<string>;
+}): string | null {
+  const mentionedIcaoCodes = findMentionedIcaoCodes(args);
 
   if (mentionedIcaoCodes.size === 0) {
     return null;
   }
 
   return makeCommentBody(mentionedIcaoCodes);
+}
+
+/**
+ * Get common acronyms that conflict with lesser-known airports.
+ *
+ * This is maintained as a global app setting so that we can update it without
+ * needing to bother mods about deploying a new version of the app.
+ *
+ * To add a new value to the list, first add it to the default list in `FALSE_POSITIVES_LIST_DEFAULT`.
+ *
+ * Then, use the devvit CLI to update the value immediately across all installations:
+ *
+ * ```bash
+ * devvit settings set false-positives-list
+ * ```
+ *
+ * An interactive prompt will ask for the value. Grab the current list from
+ * `FALSE_POSITIVES_LIST_DEFAULT`, join on a comma, and paste it in.
+ *
+ * Finally, update the README changelog with the newly-added false positive code(s).
+ */
+export async function getFalsePositiveCodes(settings: SettingsClient): Promise<Set<string>> {
+  let val: unknown;
+
+  try {
+    val = await settings.get(FALSE_POSITIVES_LIST_SETTING_NAME);
+  } catch (error) {
+    console.error('Error getting false positives list:', error);
+    return new Set(FALSE_POSITIVES_LIST_DEFAULT);
+  }
+
+  const resp = z
+    .string()
+    .transform((value) => value.trim().split(','))
+    .pipe(z.string().array())
+    .safeParse(val);
+
+  if (!resp.success) {
+    console.error('Invalid false positives list:', resp.error);
+    return new Set(FALSE_POSITIVES_LIST_DEFAULT);
+  }
+
+  return new Set([
+    ...FALSE_POSITIVES_LIST_DEFAULT,
+    ...resp.data.map((code) => code.trim().toUpperCase()),
+  ]);
 }

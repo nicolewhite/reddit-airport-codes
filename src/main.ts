@@ -1,15 +1,24 @@
-import { Devvit } from '@devvit/public-api';
+import { Devvit, SettingScope } from '@devvit/public-api';
 
-import { APP_USERNAME } from './data.js';
-import { makeCommentResponse } from './util.js';
+import { APP_USERNAME, FALSE_POSITIVES_LIST_SETTING_NAME } from './data.js';
+import { makeCommentResponse, getFalsePositiveCodes } from './util.js';
 
 Devvit.configure({
   redditAPI: true,
 });
 
+Devvit.addSettings([
+  {
+    type: 'string',
+    name: FALSE_POSITIVES_LIST_SETTING_NAME,
+    label: 'Comma-separated list of codes that often return false positives.',
+    scope: SettingScope.App,
+  },
+]);
+
 Devvit.addTrigger({
   event: 'PostSubmit',
-  onEvent: async (event, { reddit }) => {
+  onEvent: async (event, { reddit, settings }) => {
     const postId = event.post?.id;
     if (!postId) {
       console.error('No post ID.');
@@ -20,7 +29,13 @@ Devvit.addTrigger({
     const postText = event.post?.selftext;
     const combinedText = [postTitle, postText].filter(Boolean).join('\n\n');
 
-    const responseCommentBody = makeCommentResponse(combinedText);
+    const falsePositiveCodes = await getFalsePositiveCodes(settings);
+
+    const responseCommentBody = makeCommentResponse({
+      text: combinedText,
+      ignoreCodes: falsePositiveCodes,
+    });
+
     if (!responseCommentBody) {
       return;
     }
@@ -42,7 +57,7 @@ Devvit.addTrigger({
 
 Devvit.addTrigger({
   event: 'CommentSubmit',
-  onEvent: async (event, { reddit }) => {
+  onEvent: async (event, { reddit, settings }) => {
     if (event.author?.name === APP_USERNAME) {
       // Don't reply to our own comments.
       return;
@@ -77,7 +92,13 @@ Devvit.addTrigger({
       }
     }
 
-    const responseCommentBody = makeCommentResponse(textToParse);
+    const falsePositiveCodes = await getFalsePositiveCodes(settings);
+
+    const responseCommentBody = makeCommentResponse({
+      text: textToParse,
+      ignoreCodes: falsePositiveCodes,
+    });
+
     if (!responseCommentBody) {
       return;
     }

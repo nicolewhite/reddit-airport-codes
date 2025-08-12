@@ -5,21 +5,22 @@ import { AirportSchema } from './schema.js';
 
 export const APP_USERNAME = 'airport-codes';
 
-export const COMMON_ACRONYMS_TO_IGNORE = [
-  // Instrument Landing System; conflicts with Ilopango International Airport (ILS)
+export const FALSE_POSITIVES_LIST_SETTING_NAME = 'false-positives-list';
+
+// Default value of the false positives list (in case we fail to fetch it from the settings client).
+export const FALSE_POSITIVES_LIST_DEFAULT = [
   'ILS',
-  // Royal Air Force; conflicts with Rafaela Airport (RAF)
   'RAF',
-  // Trans-Canada Air Lines; conflicts with Tennant Creek Airport (TCA)
   'TCA',
-  // Pan American; conflicts with Pattani Airport (PAN)
   'PAN',
-  // Type of military plane; conflicts with M'Boki Airport (MKI)
   'MKI',
-  // KLM Royal Dutch Airlines; conflicts with Kalaleh Airport (KLM)
   'KLM',
-  // Electronic Propulsion System; conflicts with multiple airports in the Dominican Republic
   'EPS',
+  'JAL',
+  'USA',
+  'ITA',
+  'AIR',
+  'ALL',
 ];
 
 // Map of ICAO code to airport.
