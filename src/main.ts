@@ -26,10 +26,14 @@ Devvit.addTrigger({
     }
 
     try {
-      await reddit.submitComment({
+      const comment = await reddit.submitComment({
         id: postId,
         text: responseCommentBody,
       });
+
+      // Distinguish the comment as being from a mod and
+      // sticky the comment to the top of the post.
+      await comment.distinguish(true);
     } catch (error) {
       console.error('Error posting comment:', error);
     }
@@ -79,10 +83,14 @@ Devvit.addTrigger({
     }
 
     try {
-      await reddit.submitComment({
+      const comment = await reddit.submitComment({
         id: commentId,
         text: responseCommentBody,
       });
+
+      // Distinguish the comment as being from a mod
+      // but do not sticky it.
+      await comment.distinguish(false);
     } catch (error) {
       console.error('Error posting comment:', error);
     }

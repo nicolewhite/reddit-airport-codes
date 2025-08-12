@@ -27,7 +27,7 @@ Replies to **comments** are on-demand. If there is a comment that mentions airpo
 >>
 >> Pinging u/airport-codes
 
->>> **airport-codes** • 1m ago
+>>> **airport-codes** MOD • 1m ago
 >>>
 >>>|IATA|ICAO|Name|Location|
 >>>|-|-|-|-|
@@ -63,6 +63,8 @@ This app is developed using [Devvit](https://developers.reddit.com/docs/) and is
 ## 0.0.5
 
 * Add `KLM` & `EPS` to false positives list
+* Distinguish comments as being from a mod
+* Sticky replies to posts (but not comments)
 
 ## 0.0.4
 
