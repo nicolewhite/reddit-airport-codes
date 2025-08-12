@@ -60,6 +60,10 @@ This app is developed using [Devvit](https://developers.reddit.com/docs/) and is
 
 # Changelog
 
+## 0.0.5
+
+* Add `KLM` & `EPS` to false positives list
+
 ## 0.0.4
 
 * The app will now reply to comments when summoned via username

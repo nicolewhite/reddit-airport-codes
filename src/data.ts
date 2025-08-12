@@ -16,6 +16,10 @@ export const COMMON_ACRONYMS_TO_IGNORE = [
   'PAN',
   // Type of military plane; conflicts with M'Boki Airport (MKI)
   'MKI',
+  // KLM Royal Dutch Airlines; conflicts with Kalaleh Airport (KLM)
+  'KLM',
+  // Electronic Propulsion System; conflicts with multiple airports in the Dominican Republic
+  'EPS',
 ];
 
 // Map of ICAO code to airport.
