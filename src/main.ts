@@ -18,7 +18,7 @@ Devvit.addSettings([
 
 Devvit.addTrigger({
   event: 'PostSubmit',
-  onEvent: async (event, { reddit, settings }) => {
+  onEvent: async (event, { reddit, settings, redis }) => {
     const postId = event.post?.id;
     if (!postId) {
       console.error('No post ID.');
@@ -40,10 +40,33 @@ Devvit.addTrigger({
       return;
     }
 
+    const didLeaveCommentKey = `commented:${postId}`;
+
+    try {
+      const didLeaveComment = await redis.get(didLeaveCommentKey);
+      if (didLeaveComment) {
+        console.warn(`Already commented on post '${postId}'. Skipping.`);
+        return;
+      }
+    } catch (error) {
+      // In the case of a Redis error, err on the side continuing
+      // and potentially leaving a duplicate comment instead of no
+      // comment at all.
+      console.error(`Error getting key '${didLeaveCommentKey}' from Redis:`, error);
+    }
+
     try {
       const comment = await reddit.submitComment({
         id: postId,
         text: responseCommentBody,
+      });
+
+      // Mark that we've commented on this post to avoid duplicate comments,
+      // since there is no guarantee that the PostSubmit event will only fire
+      // once per post.
+      await redis.set(didLeaveCommentKey, '1', {
+        // Set an expiration of 1 day so we don't keep this key forever.
+        expiration: new Date(Date.now() + 24 * 60 * 60 * 1000),
       });
 
       // Distinguish the comment as being from a mod and

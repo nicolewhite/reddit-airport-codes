@@ -63,6 +63,7 @@ This app is developed using [Devvit](https://developers.reddit.com/docs/) and is
 ## 0.0.7
 
 * Add `MIG` and `ANG` to false positives list
+* Use Redis to keep track of which posts have been commented on, since the `PostSubmit` trigger can fire more than once per post submission
 
 ## 0.0.6
 
