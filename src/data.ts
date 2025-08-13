@@ -24,6 +24,7 @@ export const FALSE_POSITIVES_LIST_DEFAULT = [
   'MIG',
   'ANG',
   'KAL',
+  'AAL',
 ];
 
 // Map of ICAO code to airport.
