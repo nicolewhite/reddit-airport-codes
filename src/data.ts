@@ -25,6 +25,11 @@ export const FALSE_POSITIVES_LIST_DEFAULT = [
   'ANG',
   'KAL',
   'AAL',
+  'PAX',
+  'FAA',
+  'MAX',
+  'PAF',
+  'CAS',
 ];
 
 // Map of ICAO code to airport.

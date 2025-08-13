@@ -66,7 +66,7 @@ This app is developed using [Devvit](https://developers.reddit.com/docs/) and is
 ## 0.0.8 `in-progress`
 
 * Add example screenshots to README
-* Add `KAL` and `AAL` to false positives list
+* Add `KAL`, `AAL`, `PAX`, `FAA`, `MAX`, `PAF`, and `CAS` to false positives list
 
 ## 0.0.7 `latest`
 
