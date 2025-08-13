@@ -2,6 +2,9 @@
 
 This is a [Reddit app](https://developers.reddit.com/apps/airport-codes) that detects airport codes in submissions and leaves a comment with additional information about the mentioned airports. It was motivated by [this post](https://www.reddit.com/r/aviation/comments/1mc9czz/meta_can_we_include_airport_names_with_airport/) in [r/aviation](https://www.reddit.com/r/aviation/), which pointed out that many people are unfamiliar with lesser-known airport codes.
 
+![Example 1](assets/example1.png)
+![Example 2](assets/example2.png)
+
 ## Replies to posts
 
 Replies to **posts** are automated. The app searches for airport codes (both [IATA](https://en.wikipedia.org/wiki/IATA_airport_code) and [ICAO](https://en.wikipedia.org/wiki/ICAO_airport_code)) in the post's title and its text. For example, if a submission is posted with the title:
@@ -60,7 +63,11 @@ This app is developed using [Devvit](https://developers.reddit.com/docs/) and is
 
 # Changelog
 
-## 0.0.7
+## 0.0.8 `in-progress`
+
+* Add example screenshots to README
+
+## 0.0.7 `latest`
 
 * Add `MIG` and `ANG` to false positives list
 * Use Redis to keep track of which posts have been commented on, since the `PostSubmit` trigger can fire more than once per post submission
