@@ -62,7 +62,7 @@ This app is developed using [Devvit](https://developers.reddit.com/docs/) and is
 
 ## 0.0.7
 
-* Add `MIG` to false positives list
+* Add `MIG` and `ANG` to false positives list
 
 ## 0.0.6
 
