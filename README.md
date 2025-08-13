@@ -68,6 +68,7 @@ This app is developed using [Devvit](https://developers.reddit.com/docs/) and is
 * Add example screenshots to README
 * Add `KAL`, `AAL`, `PAX`, `FAA`, `MAX`, `PAF`, and `CAS` to false positives list
 * Add `ATC`, alphabetize list
+* `Mc Call` -> `McCall`
 
 ## 0.0.7 `latest`
 
