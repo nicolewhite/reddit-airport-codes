@@ -1,10 +1,11 @@
 import { z } from 'zod';
-import type { SettingsClient } from '@devvit/public-api';
 import {
+  APP_USERNAME,
   AIRPORTS,
   COUNTRIES,
-  FALSE_POSITIVES_LIST_DEFAULT,
-  FALSE_POSITIVES_LIST_SETTING_NAME,
+  FALSE_POSITIVES,
+  FALSE_POSITIVES_GITHUB_URL,
+  BAD_BOT_PHRASE,
 } from './data.js';
 
 function findMentionedIcaoCodes(args: { text: string; ignoreCodes: Set<string> }): Set<string> {
@@ -32,12 +33,19 @@ function findMentionedIcaoCodes(args: { text: string; ignoreCodes: Set<string> }
   return mentioned;
 }
 
-function makeCommentBody(icaoCodes: Set<string>): string {
+function makeCommentBody(args: { icaoCodes: Set<string>; isReplyToPost: boolean }): string | null {
+  if (args.icaoCodes.size === 0) {
+    return null;
+  }
+
   let body = '|IATA|ICAO|Name|Location|\n|:-|:-|:-|:-|';
 
-  for (const code of Array.from(icaoCodes).sort((a, b) => a.localeCompare(b))) {
-    const airport = AIRPORTS[code];
+  // Sort airports by IATA code, then name
+  const airports = Array.from(args.icaoCodes)
+    .map((code) => AIRPORTS[code])
+    .sort((a, b) => (a.iata ?? a.name).localeCompare(b.iata ?? b.name));
 
+  for (const airport of airports) {
     const name = airport.name;
     const icao = airport.icao;
     const iata = airport.iata || '';
@@ -50,26 +58,14 @@ function makeCommentBody(icaoCodes: Set<string>): string {
     body += `\n|${iata}|${icao}|${name}|${location}|`;
   }
 
-  body += '\n\n*I am a bot.*';
-
-  const links = [
-    {
-      name: 'Source',
-      url: 'https://github.com/nicolewhite/reddit-airport-codes',
-    },
-    {
-      name: 'FAQ',
-      url: 'https://github.com/nicolewhite/reddit-airport-codes/blob/main/README.md#faq',
-    },
-    {
-      name: 'Report a bug',
-      url: 'https://github.com/nicolewhite/reddit-airport-codes/issues/new',
-    },
-  ];
-
   body += '\n\n';
+  body += `*[I am a bot.](https://developers.reddit.com/apps/${APP_USERNAME})*`;
 
-  body += links.map((link) => `[${link.name}](${link.url})`).join(' | ');
+  if (args.isReplyToPost) {
+    // If this is a top-level reply to a post, tell the OP how to delete it.
+    body += '\n\n';
+    body += `^(If you are the OP and this comment is inaccurate or unwanted, reply below with "${BAD_BOT_PHRASE}" and it will be deleted.)`;
+  }
 
   return body;
 }
@@ -77,58 +73,37 @@ function makeCommentBody(icaoCodes: Set<string>): string {
 export function makeCommentResponse(args: {
   text: string;
   ignoreCodes: Set<string>;
+  isReplyToPost: boolean;
 }): string | null {
-  const mentionedIcaoCodes = findMentionedIcaoCodes(args);
+  const mentionedIcaoCodes = findMentionedIcaoCodes({
+    text: args.text,
+    ignoreCodes: args.ignoreCodes,
+  });
 
   if (mentionedIcaoCodes.size === 0) {
     return null;
   }
 
-  return makeCommentBody(mentionedIcaoCodes);
+  return makeCommentBody({
+    icaoCodes: mentionedIcaoCodes,
+    isReplyToPost: args.isReplyToPost,
+  });
 }
 
 /**
- * Get common acronyms that conflict with lesser-known airports.
- *
- * This is maintained as a global app setting so that we can update it without
- * needing to bother mods about deploying a new version of the app.
- *
- * To add a new value to the list, first add it to the default list in `FALSE_POSITIVES_LIST_DEFAULT`.
- *
- * Then, use the devvit CLI to update the value immediately across all installations:
- *
- * ```bash
- * devvit settings set false-positives-list
- * ```
- *
- * An interactive prompt will ask for the value. Grab the current list from
- * `FALSE_POSITIVES_LIST_DEFAULT`, join on a comma, and paste it in.
- *
- * Finally, update the README changelog with the newly-added false positive code(s).
+ * Get common acronyms that conflict with lesser-known airports
+ * so that they can be ignored when parsing codes from submissions.
  */
-export async function getFalsePositiveCodes(settings: SettingsClient): Promise<Set<string>> {
-  let val: unknown;
-
+export async function getFalsePositiveCodes(): Promise<Set<string>> {
   try {
-    val = await settings.get(FALSE_POSITIVES_LIST_SETTING_NAME);
+    // Get the latest list from the main branch of the repo; this allows us to update the list without needing to redeploy the app.
+    const resp = await fetch(FALSE_POSITIVES_GITHUB_URL, { signal: AbortSignal.timeout(5000) });
+    const text = await resp.text();
+    const falsePositivesRemote = z.array(z.string()).parse(JSON.parse(text));
+
+    return new Set([...FALSE_POSITIVES, ...falsePositivesRemote]);
   } catch (error) {
     console.error('Error getting false positives list:', error);
-    return new Set(FALSE_POSITIVES_LIST_DEFAULT);
+    return new Set(FALSE_POSITIVES);
   }
-
-  const resp = z
-    .string()
-    .transform((value) => value.trim().split(','))
-    .pipe(z.string().array())
-    .safeParse(val);
-
-  if (!resp.success) {
-    console.error('Invalid false positives list:', resp.error);
-    return new Set(FALSE_POSITIVES_LIST_DEFAULT);
-  }
-
-  return new Set([
-    ...FALSE_POSITIVES_LIST_DEFAULT,
-    ...resp.data.map((code) => code.trim().toUpperCase()),
-  ]);
 }

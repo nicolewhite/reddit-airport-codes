@@ -1,24 +1,19 @@
-import { Devvit, SettingScope } from '@devvit/public-api';
+import { Devvit } from '@devvit/public-api';
 
-import { APP_USERNAME, FALSE_POSITIVES_LIST_SETTING_NAME } from './data.js';
+import { APP_USERNAME, BAD_BOT_PHRASE, MY_USERNAME } from './data.js';
 import { makeCommentResponse, getFalsePositiveCodes } from './util.js';
 
 Devvit.configure({
   redditAPI: true,
-});
-
-Devvit.addSettings([
-  {
-    type: 'string',
-    name: FALSE_POSITIVES_LIST_SETTING_NAME,
-    label: 'Comma-separated list of codes that often return false positives.',
-    scope: SettingScope.App,
+  redis: true,
+  http: {
+    domains: ['raw.githubusercontent.com'],
   },
-]);
+});
 
 Devvit.addTrigger({
   event: 'PostSubmit',
-  onEvent: async (event, { reddit, settings, redis }) => {
+  onEvent: async (event, { reddit, redis }) => {
     const postId = event.post?.id;
     if (!postId) {
       console.error('No post ID.');
@@ -29,11 +24,12 @@ Devvit.addTrigger({
     const postText = event.post?.selftext;
     const combinedText = [postTitle, postText].filter(Boolean).join('\n\n');
 
-    const falsePositiveCodes = await getFalsePositiveCodes(settings);
+    const falsePositiveCodes = await getFalsePositiveCodes();
 
     const responseCommentBody = makeCommentResponse({
       text: combinedText,
       ignoreCodes: falsePositiveCodes,
+      isReplyToPost: true,
     });
 
     if (!responseCommentBody) {
@@ -80,21 +76,15 @@ Devvit.addTrigger({
 
 Devvit.addTrigger({
   event: 'CommentSubmit',
-  onEvent: async (event, { reddit, settings }) => {
+  onEvent: async (event, { reddit }) => {
     if (event.author?.name === APP_USERNAME) {
       // Don't reply to our own comments.
       return;
     }
 
-    const commentBody = event.comment?.body;
-
-    if (!commentBody?.includes(`u/${APP_USERNAME}`)) {
-      // Don't handle comments that don't mention us.
-      return;
-    }
-
     const postId = event.post?.id;
     const commentId = event.comment?.id;
+    const commentBody = event.comment?.body;
     const commentParentId = event.comment?.parentId;
 
     if (!postId || !commentId || !commentParentId) {
@@ -102,9 +92,36 @@ Devvit.addTrigger({
       return;
     }
 
+    // The comment is a reply to another comment (as opposed to the post itself,
+    // aka a top-level comment) if the parent ID is not the same as the post ID.
+    const isReplyToAnotherComment = commentParentId !== postId;
+
+    // Give the author of the post (and me) the ability to delete the bot's comment
+    // by replying with "bad bot".
+    if (
+      isReplyToAnotherComment &&
+      // commenter is the author of the post or me
+      (event.author?.id === event.post?.authorId || event.author?.name === MY_USERNAME) &&
+      // comment contains the bad bot key phrase
+      commentBody?.toLowerCase().includes(BAD_BOT_PHRASE)
+    ) {
+      const parentComment = await reddit.getCommentById(commentParentId);
+
+      // Only delete the parent comment if it's from us and is the top-level comment.
+      if (parentComment.authorName === APP_USERNAME && parentComment.parentId === postId) {
+        await parentComment.delete();
+        return;
+      }
+    }
+
+    if (!commentBody?.includes(`u/${APP_USERNAME}`)) {
+      // Don't handle comments that don't mention us.
+      return;
+    }
+
     let textToParse = commentBody;
 
-    if (commentParentId !== postId) {
+    if (isReplyToAnotherComment) {
       // If the comment is a reply to another comment, it's likely someone
       // wanting to know the airport codes mentioned in the parent comment.
       const parentComment = await reddit.getCommentById(commentParentId);
@@ -115,11 +132,12 @@ Devvit.addTrigger({
       }
     }
 
-    const falsePositiveCodes = await getFalsePositiveCodes(settings);
+    const falsePositiveCodes = await getFalsePositiveCodes();
 
     const responseCommentBody = makeCommentResponse({
       text: textToParse,
       ignoreCodes: falsePositiveCodes,
+      isReplyToPost: false,
     });
 
     if (!responseCommentBody) {
