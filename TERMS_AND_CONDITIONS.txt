@@ -1,0 +1,9 @@
+Terms and Conditions
+
+By interacting with the airport-codes bot you agree that:
+- The bot only processes public Reddit content (post titles, post bodies, and public comments) to detect airport codes and reply with airport information.
+- The bot does not collect, store, or share personal information or any private Reddit content.
+- The bot may fetch public resources (for example, raw files from GitHub) to maintain its data.
+- The service is provided "as is" without warranty. Use is at your own risk; the maintainers are not liable for damages.
+
+For more information, see: https://github.com/nicolewhite/reddit-airport-codes
