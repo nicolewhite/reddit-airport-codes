@@ -32,7 +32,9 @@
     "EMP",
     "EPS",
     "FA18",
+    "FA50",
     "FAA",
+    "FDR",
     "FOD",
     "ILS",
     "IMO",
@@ -63,6 +65,7 @@
     "SUB",
     "SWA",
     "TCA",
+    "TSA",
     "TUI",
     "UAL",
     "UND",
@@ -72,5 +75,6 @@
     "USN",
     "USS",
     "VIP",
+    "WOW",
     "XLR"
 ]
